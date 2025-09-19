@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Image Resizer Pro</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #4361ee;
+      --secondary: #3a0ca3;
+      --accent: #f72585;
+      --light: #f8f9fa;
+      --dark: #212529;
+      --success: #4cc9f0;
+      --border-radius: 12px;
+      --box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      --transition: all 0.3s ease;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      color: var(--dark);
+      line-height: 1.6;
+      min-height: 100vh;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 800px;
+      background: white;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+      overflow: hidden;
+      margin: 20px;
+      transition: var(--transition);
+    }
+
+    header {
+      background: linear-gradient(to right, var(--primary), var(--secondary));
+      color: white;
+      padding: 25px;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 2.2rem;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+    }
+
+    .tagline {
+      font-weight: 300;
+      opacity: 0.9;
+    }
+
+    .content {
+      padding: 30px;
+    }
+
+    .upload-area {
+      border: 3px dashed #dbe3ef;
+      border-radius: var(--border-radius);
+      padding: 40px 20px;
+      text-align: center;
+      margin-bottom: 30px;
+      background: #f9fbfd;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .upload-area:hover, .upload-area.dragover {
+      border-color: var(--primary);
+      background: rgba(67, 97, 238, 0.05);
+    }
+
+    .upload-icon {
+      font-size: 60px;
+      color: #adb5bd;
+      margin-bottom: 15px;
+      transition: var(--transition);
+    }
+
+    .upload-area:hover .upload-icon {
+      color: var(--primary);
+      transform: scale(1.1);
+    }
+
+    .upload-text {
+      margin-bottom: 20px;
+    }
+
+    .btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 12px 25px;
+      border-radius: 50px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn:hover {
+      background: var(--secondary);
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .btn-accent {
+      background: var(--accent);
+    }
+
+    .btn-accent:hover {
+      background: #d8117b;
+    }
+
+    .settings-panel {
+      background: #f8f9fa;
+      border-radius: var(--border-radius);
+      padding: 25px;
+      margin-bottom: 30px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    .input-group {
+      display: flex;
+      align-items: center;
+    }
+
+    input[type="number"] {
+      flex: 1;
+      padding: 12px 15px;
+      border: 2px solid #e2e8f0;
+      border-radius: var(--border-radius) 0 0 var(--border-radius);
+      font-size: 1rem;
+      transition: var(--transition);
+    }
+
+    input[type="number"]:focus {
+      border-color: var(--primary);
+      outline: none;
+    }
+
+    select {
+      padding: 12px 15px;
+      border: 2px solid #e2e8f0;
+      border-left: none;
+      border-radius: 0 var(--border-radius) var(--border-radius) 0;
+      background: white;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+
+    .preview-container {
+      text-align: center;
+      margin-bottom: 30px;
+      display: none;
+    }
+
+    .preview-title {
+      margin-bottom: 15px;
+      font-weight: 600;
+      color: var(--secondary);
+    }
+
+    #imagePreview {
+      max-width: 100%;
+      max-height: 300px;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+    }
+
+    .progress-container {
+      margin-bottom: 30px;
+      display: none;
+    }
+
+    .progress-bar {
+      height: 12px;
+      background: #e2e8f0;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 10px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(to right, var(--primary), var(--success));
+      border-radius: 10px;
+      width: 0%;
+      transition: width 0.5s ease;
+    }
+
+    .progress-text {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.9rem;
+    }
+
+    .action-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      color: #6c757d;
+      font-size: 0.9rem;
+    }
+
+    /* Animation for the resize process */
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+
+    .resizing {
+      animation: pulse 1s infinite;
+    }
+
+    /* Responsive design */
+    @media (max-width: 768px) {
+      .container {
+        margin: 10px;
+      }
+      
+      h1 {
+        font-size: 1.8rem;
+      }
+      
+      .content {
+        padding: 20px;
+      }
+      
+      .action-buttons {
+        flex-direction: column;
+      }
+      
+      .btn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+
+    /* Fun elements */
+    .confetti {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1000;
+      display: none;
+    }
+
+    .confetti-piece {
+      position: absolute;
+      width: 10px;
+      height: 30px;
+      opacity: 0;
+    }
+
+    @keyframes confettiFall {
+      0% {
+        opacity: 1;
+        top: -100px;
+        transform: rotate(0deg);
+      }
+      100% {
+        opacity: 0;
+        top: 100vh;
+        transform: rotate(720deg);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1><i class="fas fa-expand-arrows-alt"></i> Image Resizer Pro</h1>
+      <p class="tagline">Resize your images to the perfect size in seconds!</p>
+    </header>
+
+    <div class="content">
+      <div class="upload-area" id="uploadArea">
+        <i class="fas fa-cloud-upload-alt upload-icon"></i>
+        <p class="upload-text">Drag & drop your image here or click to browse</p>
+        <input type="file" id="imageInput" accept="image/*" hidden>
+        <button class="btn" onclick="document.getElementById('imageInput').click()">
+          <i class="fas fa-folder-open"></i> Choose Image
+        </button>
+      </div>
+
+      <div class="settings-panel">
+        <div class="form-group">
+          <label for="targetSize">Target File Size</label>
+          <div class="input-group">
+            <input type="number" id="targetSize" placeholder="Enter size" min="1">
+            <select id="unit">
+              <option value="KB">KB</option>
+              <option value="MB">MB</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="preview-container" id="previewContainer">
+        <h3 class="preview-title">Image Preview</h3>
+        <img id="imagePreview" src="" alt="Preview">
+      </div>
+
+      <div class="progress-container" id="progressContainer">
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <div class="progress-text">
+          <span>Resizing...</span>
+          <span id="progressPercentage">0%</span>
+        </div>
+      </div>
+
+      <div class="action-buttons">
+        <button class="btn btn-accent" onclick="resizeImage()" id="resizeBtn">
+          <i class="fas fa-compress-arrows-alt"></i> Resize & Download
+        </button>
+        <button class="btn" onclick="resetAll()">
+          <i class="fas fa-redo"></i> Reset
+        </button>
+      </div>
+    </div>
+
+    <footer>
+      <p>Image Resizer Pro &copy; 2023 | Resize your images without losing quality</p>
+    </footer>
+  </div>
+
+  <div class="confetti" id="confetti"></div>
+
+  <script>
+    const uploadArea = document.getElementById('uploadArea');
+    const imageInput = document.getElementById('imageInput');
+    const previewContainer = document.getElementById('previewContainer');
+    const imagePreview = document.getElementById('imagePreview');
+    const progressContainer = document.getElementById('progressContainer');
+    const progressFill = document.getElementById('progressFill');
+    const progressPercentage = document.getElementById('progressPercentage');
+    const resizeBtn = document.getElementById('resizeBtn');
+    const confetti = document.getElementById('confetti');
+
+    // Handle drag and drop
+    uploadArea.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      uploadArea.classList.add('dragover');
+    });
+
+    uploadArea.addEventListener('dragleave', () => {
+      uploadArea.classList.remove('dragover');
+    });
+
+    uploadArea.addEventListener('drop', (e) => {
+      e.preventDefault();
+      uploadArea.classList.remove('dragover');
+      
+      if (e.dataTransfer.files.length) {
+        imageInput.files = e.dataTransfer.files;
+        handleImageSelection();
+      }
+    });
+
+    // Handle file selection
+    imageInput.addEventListener('change', handleImageSelection);
+
+    function handleImageSelection() {
+      const file = imageInput.files[0];
+      
+      if (file && file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+          imagePreview.src = e.target.result;
+          previewContainer.style.display = 'block';
+          
+          // Scroll to preview
+          previewContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        };
+        
+        reader.readAsDataURL(file);
+      } else {
+        alert('Please select a valid image file.');
+      }
+    }
+
+    // Create confetti effect
+    function createConfetti() {
+      confetti.innerHTML = '';
+      confetti.style.display = 'block';
+      
+      const colors = ['#4361ee', '#3a0ca3', '#f72585', '#4cc9f0', '#7209b7'];
+      
+      for (let i = 0; i < 100; i++) {
+        const piece = document.createElement('div');
+        piece.className = 'confetti-piece';
+        piece.style.left = Math.random() * 100 + 'vw';
+        piece.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        piece.style.animation = `confettiFall ${Math.random() * 3 + 2}s linear forwards`;
+        piece.style.animationDelay = Math.random() * 2 + 's';
+        confetti.appendChild(piece);
+      }
+      
+      setTimeout(() => {
+        confetti.style.display = 'none';
+      }, 5000);
+    }
+
+    // Reset everything
+    function resetAll() {
+      imageInput.value = '';
+      previewContainer.style.display = 'none';
+      progressContainer.style.display = 'none';
+      progressFill.style.width = '0%';
+      progressPercentage.textContent = '0%';
+      document.getElementById('targetSize').value = '';
+      resizeBtn.classList.remove('resizing');
+    }
+
+    // Resize image function
+    function resizeImage() {
+      const fileInput = document.getElementById("imageInput");
+      const targetSize = parseFloat(document.getElementById("targetSize").value);
+      const unit = document.getElementById("unit").value;
+
+      if (!fileInput.files[0] || !targetSize) {
+        alert("Please upload an image and enter a target size.");
+        return;
+      }
+
+      // Show progress bar
+      progressContainer.style.display = 'block';
+      resizeBtn.classList.add('resizing');
+
+      const file = fileInput.files[0];
+      const reader = new FileReader();
+      
+      reader.onload = function(event) {
+        const img = new Image();
+        img.src = event.target.result;
+
+        img.onload = function() {
+          const canvas = document.createElement("canvas");
+          const ctx = canvas.getContext("2d");
+          canvas.width = img.width;
+          canvas.height = img.height;
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+          // Convert MB to KB
+          const targetBytes = unit === "MB" ? targetSize * 1024 * 1024 : targetSize * 1024;
+
+          let quality = 0.9;
+          let lower = 0;
+          let upper = 1;
+          let result = null;
+          let iterations = 0;
+
+          // Update progress bar
+          function updateProgress(iter, size, target) {
+            const percent = Math.min(100, Math.round((iter / 20) * 100));
+            progressFill.style.width = percent + '%';
+            progressPercentage.textContent = percent + '%';
+            
+            const sizeDiff = Math.abs(size - target);
+            const sizePercent = Math.max(0, 100 - Math.round((sizeDiff / target) * 100));
+            progressPercentage.textContent = `Optimizing: ${sizePercent}%`;
+          }
+
+          // Binary search for accurate size
+          for (let i = 0; i < 20; i++) {
+            iterations = i;
+            const dataUrl = canvas.toDataURL("image/jpeg", quality);
+            const byteString = atob(dataUrl.split(',')[1]);
+            const fileSize = byteString.length;
+
+            updateProgress(i, fileSize, targetBytes);
+
+            if (fileSize > targetBytes) {
+              upper = quality;
+              quality = (quality + lower) / 2;
+            } else {
+              lower = quality;
+              quality = (quality + upper) / 2;
+              result = dataUrl;
+              
+              // If we're very close, break early
+              if (Math.abs(fileSize - targetBytes) < targetBytes * 0.05) {
+                break;
+              }
+            }
+          }
+
+          // Final update
+          progressFill.style.width = '100%';
+          progressPercentage.textContent = 'Complete!';
+
+          if (result) {
+            const link = document.createElement("a");
+            link.href = result;
+            link.download = "resized-image.jpg";
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            // Show confetti effect
+            createConfetti();
+            
+            // Reset after success
+            setTimeout(() => {
+              progressContainer.style.display = 'none';
+              resizeBtn.classList.remove('resizing');
+            }, 2000);
+          } else {
+            alert("Could not resize image to the exact target size.");
+            progressContainer.style.display = 'none';
+            resizeBtn.classList.remove('resizing');
+          }
+        };
+      };
+      reader.readAsDataURL(file);
+    }
+  </script>
+</body>
+</html>
